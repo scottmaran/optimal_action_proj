@@ -35,6 +35,9 @@ for index in range(0, num_plays):
     gameId = play.loc['gameId']
     season = str(gameId)[0:4]
     playId = play.loc['playId']
+    
+    if (season != year_str):
+        continue
 
     #####################
     # returnerId stored as decimal in tracking csv's
