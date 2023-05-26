@@ -186,6 +186,6 @@ full_train_df = full_train_df.dropna(axis=0, how='any', inplace=False)
 end_time = time.time()
 total_time = round(end_time - start_time, 3)
 
-full_train_df.to_pickle("datasets/bc_dataset.pkl")
+full_train_df.to_pickle(f"datasets/bc_dataset_{year_str}.pkl")
 
 print(F"total time: {total_time}  seconds")
