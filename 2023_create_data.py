@@ -50,7 +50,7 @@ for index in range(0, num_plays):
         continue
     
     play_df = tracking.query('playId == @playId and gameId == @gameId', inplace=False).copy()
-    if len(play_df == 0): 
+    if len(play_df) == 0: 
         continue
 
     playDirection = play_df.iat[0,-1]
