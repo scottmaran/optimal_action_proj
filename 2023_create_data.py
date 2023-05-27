@@ -23,13 +23,14 @@ start_time = time.time()
 
 # intialize list of dictionaries (State, Action, Reward, New-state)
 dict_list = []
-RECEIVED = False
-FUMBLED = False
-TACKLED = False
 num_plays = len(returned_plays)
 
 print("Starting")
 for index in range(0, num_plays):
+    
+    RECEIVED = False
+    FUMBLED = False
+    TACKLED = False
 
     play = returned_plays.iloc[index,].copy()
     gameId = play.loc['gameId']
