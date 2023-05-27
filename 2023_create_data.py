@@ -36,9 +36,6 @@ for index in range(0, num_plays):
     gameId = play.loc['gameId']
     season = str(gameId)[0:4]
     playId = play.loc['playId']
-    
-    if (season != year_str):
-        continue
 
     #####################
     # returnerId stored as decimal in tracking csv's
@@ -53,6 +50,8 @@ for index in range(0, num_plays):
         continue
     
     play_df = tracking.query('playId == @playId and gameId == @gameId', inplace=False).copy()
+    if len(play_df == 0): 
+        continue
 
     playDirection = play_df.iat[0,-1]
     
