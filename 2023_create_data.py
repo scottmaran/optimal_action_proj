@@ -117,7 +117,7 @@ for index in range(0, num_plays):
                 other_team_name = 'away'
 
             # get distance from ball carrier
-            ball_carrier_state = time_play_df.loc[time_play_df.nflId == returnerId, ['x','y', 's', 'a', 'o', 'dir']]
+            ball_carrier_state = time_play_df.loc[time_play_df.nflId == returnerId, ['x','y', 's', 'a', 'o', 'dir', 'next_x', 'next_y']]
             time_play_df['dist_from_ball_carrier'] = time_play_df.loc[:,['x','y']].apply(get_distances, axis=1,args=(ball_carrier_state.loc[:, ['x','y']],))
             time_play_df['next_dist_from_ball_carrier'] = time_play_df.loc[:,['next_x','next_y']].apply(get_distances, axis=1,args=(ball_carrier_state.loc[:, ['next_x','next_y']],))
 
@@ -168,9 +168,9 @@ for index in range(0, num_plays):
                 print("error getting reward")
                 continue
             # action = [x,y,sin_o,cos_o,sin_dir,cos_dir,speed,accel]
-            action = states.iloc[0,[7,8,11,12,13,14,3,4]] - next_state.iloc[0,[7,8,11,12,13,14,3,4]]    # all states except dist_from_ball and team_index
+            action = states[0,[7,8,11,12,13,14,3,4]] - next_state[0,[7,8,11,12,13,14,3,4]]    # all states except dist_from_ball and team_index
 
-            rowDict['action'] = action.round(3)
+            rowDict['action'] = action
 
             dict_list.append(rowDict)
         except Exception as e:
