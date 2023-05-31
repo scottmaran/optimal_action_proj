@@ -144,8 +144,8 @@ for index in range(0, num_plays):
                     continue
             
             # store info
-            states = time_play_df.loc[:,['x','y', 'dis', 's', 'a', 'o', 'dir', 'adj_x', 'adj_y', 'adj_o', 'adj_dir', 'sin_adj_o', 'cos_adj_o', 'sin_adj_dir', 'cos_adj_dir', 'dist_from_ball_carrier']].to_numpy()
-            football_pos = time_play_df.loc[time_play_df.team == 'football',['x','y', 'dis', 's', 'a', 'o', 'dir', 'adj_x', 'adj_y', 'adj_o', 'adj_dir', 'sin_adj_o', 'cos_adj_o', 'sin_adj_dir', 'cos_adj_dir', 'dist_from_ball_carrier']].to_numpy()
+            states = time_play_df.loc[:,['x','y', 'dis', 's', 'a', 'o', 'dir', 'adj_x', 'adj_y', 'adj_o', 'adj_dir', 'sin_adj_o', 'cos_adj_o', 'sin_adj_dir', 'cos_adj_dir', 'team_index', 'dist_from_ball_carrier']].to_numpy()
+            football_pos = time_play_df.loc[time_play_df.team == 'football',['x','y', 'dis', 's', 'a', 'o', 'dir', 'adj_x', 'adj_y', 'adj_o', 'adj_dir', 'sin_adj_o', 'cos_adj_o', 'sin_adj_dir', 'cos_adj_dir', 'team_index', 'dist_from_ball_carrier']].to_numpy()
             
             rowDict['season'] = season
             rowDict['gameId'] = gameId
@@ -158,7 +158,7 @@ for index in range(0, num_plays):
             # add current state
             rowDict['state'] = states
             # add future states
-            next_state = time_play_df.loc[:,['next_x','next_y', 'next_dis', 'next_s', 'next_a', 'next_o', 'next_dir', 'next_adj_x', 'next_adj_y', 'next_adj_o', 'next_adj_dir', 'next_sin_adj_o', 'next_cos_adj_o', 'next_sin_adj_dir', 'next_cos_adj_dir']].to_numpy()
+            next_state = time_play_df.loc[:,['next_x','next_y', 'next_dis', 'next_s', 'next_a', 'next_o', 'next_dir', 'next_adj_x', 'next_adj_y', 'next_adj_o', 'next_adj_dir', 'next_sin_adj_o', 'next_cos_adj_o', 'next_sin_adj_dir', 'next_cos_adj_dir', 'team_index']].to_numpy()
             rowDict['next_state'] = next_state
             # add reward
             try:
