@@ -119,6 +119,7 @@ for index in range(0, num_plays):
             # get distance from ball carrier
             ball_carrier_state = time_play_df.loc[time_play_df.nflId == returnerId, ['x','y', 's', 'a', 'o', 'dir']]
             time_play_df['dist_from_ball_carrier'] = time_play_df.loc[:,['x','y']].apply(get_distances, axis=1,args=(ball_carrier_state.loc[:, ['x','y']],))
+            time_play_df['next_dist_from_ball_carrier'] = time_play_df.loc[:,['next_x','next_y']].apply(get_distances, axis=1,args=(ball_carrier_state.loc[:, ['next_x','next_y']],))
 
             time_play_df['ball_carrier_bool'] = time_play_df.nflId != returnerId
             time_play_df['team_index'] = time_play_df.team == ball_carrier_team
@@ -158,7 +159,7 @@ for index in range(0, num_plays):
             # add current state
             rowDict['state'] = states
             # add future states
-            next_state = time_play_df.loc[:,['next_x','next_y', 'next_dis', 'next_s', 'next_a', 'next_o', 'next_dir', 'next_adj_x', 'next_adj_y', 'next_adj_o', 'next_adj_dir', 'next_sin_adj_o', 'next_cos_adj_o', 'next_sin_adj_dir', 'next_cos_adj_dir', 'team_index']].to_numpy()
+            next_state = time_play_df.loc[:,['next_x','next_y', 'next_dis', 'next_s', 'next_a', 'next_o', 'next_dir', 'next_adj_x', 'next_adj_y', 'next_adj_o', 'next_adj_dir', 'next_sin_adj_o', 'next_cos_adj_o', 'next_sin_adj_dir', 'next_cos_adj_dir', 'team_index', 'next_dist_from_ball_carrier']].to_numpy()
             rowDict['next_state'] = next_state
             # add reward
             try:
@@ -166,8 +167,8 @@ for index in range(0, num_plays):
             except:
                 print("error getting reward")
                 continue
-            
-            action = states[0,7:-1] - next_state[0,7:]    # all states except dist_from_ball
+            # action = [x,y,sin_o,cos_o,sin_dir,cos_dir,speed,accel]
+            action = states.iloc[0,[7,8,11,12,13,14,3,4]] - next_state.iloc[0,[7,8,11,12,13,14,3,4]]    # all states except dist_from_ball and team_index
 
             rowDict['action'] = action.round(3)
 
