@@ -1,6 +1,9 @@
 """
 Runs behavior cloning
 Hyperparameters for the experiment are defined in main()
+
+
+export PYTHONPATH=~/Desktop/cs224r/optimal_action_proj/
 """
 
 import os
@@ -47,6 +50,8 @@ def main():
     parser.add_argument('--epochs', '-e', type=int, default=1)
     # training data collected (in the env) during each iteration
     parser.add_argument('--train_batch_size', type=int, default=128)
+    # train split
+    parser.add_argument('--train_split', type=int, default=1)
     # eval data collected (in the env) for logging metrics
     parser.add_argument('--num_batches', type=int, default=1000)
 

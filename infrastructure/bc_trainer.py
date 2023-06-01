@@ -53,9 +53,10 @@ class BCTrainer:
         ## AGENT
         #############
         ac_dim = 8
-        ob_dim = 368
+        ob_dim = 391
         self.params['agent_params']['ac_dim'] = ac_dim
         self.params['agent_params']['ob_dim'] = ob_dim
+        self.params['agent_params']['train_split'] = self.params['train_split']
         agent_class = self.params['agent_class']
         self.agent = agent_class(self.params['agent_params'])
         
@@ -85,7 +86,8 @@ class BCTrainer:
             train_logs = self.train_agent()
             
             # eval
-            eval_logs = self.train_agent()
+            if self.params['train_split'] != 1:
+                eval_logs = self.train_agent(mode='val')
             
         
         print(f'Saving model at path {self.params["logdir"]}...')

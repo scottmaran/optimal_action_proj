@@ -10,16 +10,16 @@ class ReplayBuffer():
     """
     Defines a replay buffer to store past trajectories
     """
-    def __init__(self, max_size=1000000, filepath=None, test=0):
+    def __init__(self, max_size=1000000, filepath=None, train_percentage=1):
         self.max_size = max_size
         # store each rollout
         self.paths = []
         
         # dictionary to store components
         self.components = dict()
-        self.train = None
-        self.val = None
-        self.test = None
+        self.train = dict()
+        self.val = dict()
+        self.test = dict()
         self.num_entries = 0
 
         self.filepath = filepath
@@ -27,10 +27,8 @@ class ReplayBuffer():
             self.add_initial(filepath)
             
         # if test set
-        if test != 0 :
-            self.train = dict()
-            self.val = dict()
-            self.test = dict()
+        if train_percentage != 1:
+            self.split_data(train_percentage)
 
     def __len__(self):
         if len(self.components) == 0:

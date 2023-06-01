@@ -32,7 +32,8 @@ class BCAgent():
         )
 
         # replay buffer
-        self.replay_buffer = ReplayBuffer(max_size=self.agent_params['max_replay_buffer_size'], filepath=self.agent_params['filepath'])
+        print(f"Creating replaying buffer from {self.agent_params['filepath']}")
+        self.replay_buffer = ReplayBuffer(max_size=self.agent_params['max_replay_buffer_size'], filepath=self.agent_params['filepath'], train_percentage=self.agent_params['train_split'])
     
     def train(self, ob_no, ac_na):
         """
