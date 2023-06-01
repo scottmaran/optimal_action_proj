@@ -82,23 +82,36 @@ class BCTrainer:
             # use_batchsize = self.params['batch_size']
             # paths = self.collect_training_trajectories(path_to_data)
             # self.agent.add_to_replay_buffer(paths)
-            all_logs = self.train_agent()
+            train_logs = self.train_agent()
+            
+            # eval
+            eval_logs = self.train_agent()
+            
+        
+        print(f'Saving model at path {self.params["logdir"]}...')
+        torch.save(self.agent.actor.state_dict(), self.params["logdir"])
     
-    def train_agent(self):
+    def train_agent(self, mode='train'):
         """
         Samples a batch of trajectories and updates the agent with the batch
+        mode: {train, val, test}
         """
-        print('\nTraining agent using sampled data from replay buffer...')
+        print('\n Mode={mode} - training agent using sampled data from replay buffer...')
         all_logs = []
+        running_loss = 0
+        print_every = 2000
         for train_step in range(self.params['num_batches']):
             # sample some data from the data buffer
-            batch_dict = self.agent.replay_buffer.sample_random_data(self.params['train_batch_size'])
+            batch_dict = self.agent.replay_buffer.sample_random_data(self.params['train_batch_size'], data_dict_to_use=mode)
             state_batch = batch_dict['state']
             action_batch = batch_dict['action']
             train_log = self.agent.train(ptu.from_numpy(state_batch), ptu.from_numpy(action_batch))
             all_logs.append(train_log)
             
-            print(f"Batch {train_step}: Training Loss = {train_log['Training Loss']}")
+            if train_step % print_every == (print_every-1):    # print every print_every mini-batches
+                print(f"{mode} running loss = {running_loss / 2000:.3f}")
+                running_loss = 0.0
         return all_logs
+        
         
     

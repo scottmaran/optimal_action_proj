@@ -1,6 +1,7 @@
 # Custom
 .DS_Store
 data/
+datasets/
 *.ipynb
 
 # Byte-compiled / optimized / DLL files
