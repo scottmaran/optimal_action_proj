@@ -9,7 +9,7 @@ import pickle
 
 from infrastructure import pytorch_util as ptu
 
-class BCTrainer:
+class IQLTrainer:
     """
     A class which defines the training algorithm for the agent. Handles
     sampling data, updating the agent, and logging the results.
@@ -18,7 +18,7 @@ class BCTrainer:
 
     Attributes
     ----------
-    agent : BCAgent
+    agent : IQL Agent
         The agent we want to train
 
     Methods
@@ -57,6 +57,8 @@ class BCTrainer:
         ob_dim = 391
         self.params['agent_params']['ac_dim'] = ac_dim
         self.params['agent_params']['ob_dim'] = ob_dim
+        self.params['agent_params']['gamma'] = self.params['gamma']
+        self.params['agent_params']['iql_expectile'] = self.params['iql_expectile']
         self.params['agent_params']['train_split'] = self.params['train_split']
         agent_class = self.params['agent_class']
         self.agent = agent_class(self.params['agent_params'])
@@ -94,14 +96,14 @@ class BCTrainer:
                 eval_logs = None
             
         model_path = self.params["logdir"] + "/model"
-        print(f'Saving model at path {model_path}...')
-        self.agent.actor.save(model_path)
+        # print(f'Saving model at path {model_path}...')
+        # self.agent.actor.save(model_path)
         
-        with open(self.params["logdir"] + "/train_logs.pkl", "wb") as fp:   #Pickling
-            pickle.dump(train_logs, fp)
-        if eval_logs != None:
-            with open(self.params["logdir"] + "/eval_logs.pkl", "wb") as fp:   #Pickling
-                pickle.dump(eval_logs, fp)
+        # with open(self.params["logdir"] + "/train_logs.pkl", "wb") as fp:   #Pickling
+        #     pickle.dump(train_logs, fp)
+        # if eval_logs != None:
+        #     with open(self.params["logdir"] + "/eval_logs.pkl", "wb") as fp:   #Pickling
+        #         pickle.dump(eval_logs, fp)
     
     def train_agent(self, mode='train'):
         """
@@ -110,20 +112,28 @@ class BCTrainer:
         """
         print(f'\n Mode={mode} - training agent using sampled data from replay buffer...')
         all_logs = []
-        running_loss = 0
         print_every = 1000
+        running_actor_loss = 0
+        running_q_loss = 0
+        running_v_loss = 0
         for train_step in range(self.params['num_batches']):
             # sample some data from the data buffer
             batch_dict = self.agent.replay_buffer.sample_random_data(self.params['train_batch_size'], data_dict_to_use=mode)
-            state_batch = batch_dict['state']
-            action_batch = batch_dict['action']
-            train_log = self.agent.train(ptu.from_numpy(state_batch), ptu.from_numpy(action_batch))
-            running_loss += train_log['Training Loss']
-            all_logs.append(train_log)
+            train_log = self.agent.train(batch_dict)
             
+            running_actor_loss += train_log['actor_loss']
+            running_q_loss += train_log['critic_q_loss']
+            running_v_loss += train_log['critic_v_loss']
+            
+            all_logs.append(train_log)
             if train_step % print_every == (print_every-1):    # print every print_every mini-batches
-                print(f"{mode} running loss = {running_loss / print_every:.3f}")
-                running_loss = 0.0
+                print(f"Outputing log for batch {train_step} out of {self.params['num_batches']}:")
+                print(f"critic v loss: {running_v_loss/print_every}")
+                print(f"critic q loss: {running_q_loss/print_every}")
+                print(f"actor loss: {running_actor_loss/print_every}")
+                running_actor_loss = 0
+                running_q_loss = 0
+                running_v_loss = 0
         return all_logs
         
         

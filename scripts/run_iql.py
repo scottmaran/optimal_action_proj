@@ -1,7 +1,6 @@
 """
-Runs behavior cloning
+Runs implicit q-learning
 Hyperparameters for the experiment are defined in main()
-
 
 export PYTHONPATH=~/Desktop/cs224r/optimal_action_proj/
 """
@@ -12,11 +11,11 @@ import argparse
 import numpy as np
 import torch
 
-from infrastructure.bc_trainer import BCTrainer
+from infrastructure.iql_trainer import IQLTrainer
 from infrastructure import pytorch_util as ptu
-from agents.bc_agent import BCAgent
+from agents.iql_agent import IQLAgent
 
-def run_bc(params):
+def run_iql(params):
     """
     Runs behavior cloning with the specified parameters
 
@@ -33,10 +32,10 @@ def run_bc(params):
         'filepath': params['filepath']
     }
         
-    params['agent_class'] = BCAgent
+    params['agent_class'] = IQLAgent
     params['agent_params'] = agent_params
     
-    trainer = BCTrainer(params)
+    trainer = IQLTrainer(params)
     trainer.run_training_loop(
         epochs=params['epochs']
     )
@@ -45,6 +44,9 @@ def run_bc(params):
 def main():
     
     parser = argparse.ArgumentParser()
+    
+    # algo params
+    parser.add_argument('--iql_expectile', type=float, default=0.8)
     
     # number of gradient steps for training policy (per iter in n_iter)
     parser.add_argument('--epochs', '-e', type=int, default=100)
@@ -55,6 +57,7 @@ def main():
     # eval data collected (in the env) for logging metrics
     parser.add_argument('--num_batches', type=int, default=5000)
 
+    parser.add_argument('--gamma', type=float, default=0.9) # what is usual default
     # depth, of policy to be learned
     parser.add_argument('--n_layers', type=int, default=2)
     # width of each layer, of policy to be learned
@@ -77,13 +80,13 @@ def main():
         '../models')
     if not os.path.exists(data_path):
         os.makedirs(data_path)
-    logdir = 'bc_' + time.strftime("%d-%m-%Y_%H-%M")
+    logdir = 'iql_' + time.strftime("%d-%m-%Y_%H-%M")
     logdir = os.path.join(data_path, logdir)
     params['logdir'] = logdir
     if not os.path.exists(logdir):
         os.makedirs(logdir)
     
-    run_bc(params)
+    run_iql(params)
 
 
 if __name__ == "__main__":
