@@ -98,7 +98,7 @@ class IQLTrainer:
         if self.params['save']:
             model_path = self.params["logdir"] + "/model"
             print(f'Saving model at path {model_path}...')
-            self.agent.actor.save(model_path)
+            self.agent.awac_actor.save(model_path)
             
             with open(self.params["logdir"] + "/train_logs.pkl", "wb") as fp:   #Pickling
                 pickle.dump(train_logs, fp)
