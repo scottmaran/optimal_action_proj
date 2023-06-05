@@ -55,7 +55,7 @@ class BCAgent():
             state = self.replay_buffer.test['state']
             action = self.replay_buffer.test['action']
             
-        return F.mse_loss(self.actor.get_action(state), ptu.from_numpy(action))
+        return F.mse_loss(ptu.from_numpy(self.actor.get_action(state)), ptu.from_numpy(action))
 
     def sample(self, batch_size):
         """
