@@ -129,12 +129,12 @@ class IQLTrainer:
                 print(f"critic v loss: {running_v_loss/print_every}")
                 print(f"critic q loss: {running_q_loss/print_every}")
                 print(f"actor loss: {running_actor_loss/print_every}")
-                avg_log = {"critic v loss": running_v_loss/print_every, "critic q loss":running_q_loss/print_every , "actor loss":running_actor_loss/print_every }
+                avg_log = {"critic_v_loss": running_v_loss/print_every, "critic_q_loss":running_q_loss/print_every , "actor_loss":running_actor_loss/print_every }
                 avg_logs.append(avg_log)
                 running_actor_loss = 0
                 running_q_loss = 0
                 running_v_loss = 0
-        return all_logs, avg_log
+        return all_logs, avg_logs
         
     def eval_agent(self, mode='val'):
         """
