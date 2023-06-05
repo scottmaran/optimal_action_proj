@@ -97,11 +97,11 @@ class IQLAgent():
     
     def eval(self, mode):
         if mode == 'val':
-            state = self.replay_buffer.val['state']
-            action = self.replay_buffer.val['action']
+            state = ptu.from_numpy(self.replay_buffer.val['state'])
+            action = ptu.from_numpy(self.replay_buffer.val['action'])
         else:
-            state = self.replay_buffer.test['state']
-            action = self.replay_buffer.test['action']
+            state = ptu.from_numpy(self.replay_buffer.test['state'])
+            action = ptu.from_numpy(self.replay_buffer.test['action'])
         
         advantage = self.estimate_advantage(state, action).detach()
         eval_actor_loss = self.awac_actor.eval(state, action, advantage)
