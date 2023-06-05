@@ -1,5 +1,6 @@
 from infrastructure.replay_buffer import ReplayBuffer
 from policies.MLP_policy import MLPPolicySL
+from torch.nn import functional as F
 
 class BCAgent():
     """
@@ -44,6 +45,16 @@ class BCAgent():
         # the given observations and corresponding action labels
         log = self.actor.update(ob_no, ac_na)
         return log
+    
+    def eval(self, mode):
+        if mode == 'val':
+            state = self.replay_buffer.val['state']
+            action = self.replay_buffer.val['action']
+        else:
+            state = self.replay_buffer.test['state']
+            action = self.replay_buffer.test['action']
+            
+        return F.mse_loss(self.actor.get_action(state), action)
 
     def sample(self, batch_size):
         """

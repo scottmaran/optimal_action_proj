@@ -68,6 +68,8 @@ def main():
     parser.add_argument('--filepath', '-f', type=str, default="./datasets/bc_dataset_full.pkl")
     parser.add_argument('--max_replay_buffer_size', type=int, default=1000000)
     parser.add_argument('--seed', type=int, default=2430)
+    
+    parser.add_argument('--save', type=bool, default=False)
     args = parser.parse_args()
     # convert args to dictionary
     params = vars(args)
