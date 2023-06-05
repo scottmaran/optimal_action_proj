@@ -55,6 +55,7 @@ class MLPPolicySL(nn.Module):
             itertools.chain([self.logstd], self.mean_net.parameters()),
             self.learning_rate
         )
+        self.scheduler = optim.ExponentialLR(self.optimizer, gamma=0.9)
         
         ##################################
 
@@ -111,6 +112,7 @@ class MLPPolicySL(nn.Module):
 
         self.optimizer.step()
         self.optimizer.zero_grad()
+        self.scheduler.step()
         return {
             # You can add extra logging information here, but keep this line
             'Training Loss': ptu.to_numpy(loss),
