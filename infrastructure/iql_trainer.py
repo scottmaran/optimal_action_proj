@@ -90,21 +90,22 @@ class IQLTrainer:
             # eval
             if self.params['train_split'] != 1:
                 train_logs = self.train_agent(mode='train')
-                eval_logs = self.train_agent(mode='val')
+                eval_logs = self.eval_agent(mode='val')
             else:
                 train_logs = self.train_agent(mode=None)
                 eval_logs = None
             
-        model_path = self.params["logdir"] + "/model"
-        # print(f'Saving model at path {model_path}...')
-        # self.agent.actor.save(model_path)
+        if self.params['save']:
+            model_path = self.params["logdir"] + "/model"
+            print(f'Saving model at path {model_path}...')
+            self.agent.actor.save(model_path)
+            
+            with open(self.params["logdir"] + "/train_logs.pkl", "wb") as fp:   #Pickling
+                pickle.dump(train_logs, fp)
+            if eval_logs != None:
+                with open(self.params["logdir"] + "/eval_logs.pkl", "wb") as fp:   #Pickling
+                    pickle.dump(eval_logs, fp)
         
-        # with open(self.params["logdir"] + "/train_logs.pkl", "wb") as fp:   #Pickling
-        #     pickle.dump(train_logs, fp)
-        # if eval_logs != None:
-        #     with open(self.params["logdir"] + "/eval_logs.pkl", "wb") as fp:   #Pickling
-        #         pickle.dump(eval_logs, fp)
-    
     def train_agent(self, mode='train'):
         """
         Samples a batch of trajectories and updates the agent with the batch
@@ -135,6 +136,16 @@ class IQLTrainer:
                 running_q_loss = 0
                 running_v_loss = 0
         return all_logs
+        
+    def eval_agent(self, mode='val'):
+        """
+        Samples a batch of trajectories and updates the agent with the batch
+        mode: {train, val, test}
+        """
+        print(f'\n Mode={mode} - training agent using sampled data from replay buffer...')
+        val_loss = self.agent.eval(mode)
+        print(f"{mode} loss = {val_loss:.3f}")
+        return val_loss
         
         
     

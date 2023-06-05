@@ -155,3 +155,17 @@ class MLPPolicyAWAC(MLPPolicySL):
         self.optimizer.step()
         
         return actor_loss.item()
+    
+    def eval(self, observations, actions, adv_n):
+        if isinstance(observations, np.ndarray):
+            observations = ptu.from_numpy(observations)
+        if isinstance(actions, np.ndarray):
+            actions = ptu.from_numpy(actions)
+        if isinstance(adv_n, np.ndarray):
+            adv_n = ptu.from_numpy(adv_n)
+            
+        dist = self(observations)
+        log_prob_n = dist.log_prob(actions)
+        actor_loss = -log_prob_n * torch.exp(adv_n/self.lambda_awac)
+        actor_loss = actor_loss.mean()
+        return actor_loss.item()

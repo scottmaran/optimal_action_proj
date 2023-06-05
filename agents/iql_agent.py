@@ -2,6 +2,7 @@ from infrastructure.replay_buffer import ReplayBuffer
 from policies.MLP_policy import MLPPolicyAWAC
 from critics.iql_critic import IQLCritic
 from infrastructure import pytorch_util as ptu
+from torch.nn import functional as F
 
 import numpy as np
 import torch
@@ -93,6 +94,18 @@ class IQLAgent():
         self.num_param_updates += 1
         
         return log
+    
+    def eval(self, mode):
+        if mode == 'val':
+            state = self.replay_buffer.val['state']
+            action = self.replay_buffer.val['action']
+        else:
+            state = self.replay_buffer.test['state']
+            action = self.replay_buffer.test['action']
+        
+        advantage = self.estimate_advantage(state, action).detach()
+        eval_actor_loss = self.awac_actor.eval(state, action, advantage)
+        return eval_actor_loss
 
     def sample(self, batch_size):
         """
