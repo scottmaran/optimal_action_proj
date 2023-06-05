@@ -119,6 +119,9 @@ class BCTrainer:
             state_batch = batch_dict['state']
             action_batch = batch_dict['action']
             train_log = self.agent.train(ptu.from_numpy(state_batch), ptu.from_numpy(action_batch))
+            
+            self.agent.actor.scheduler.step()
+            
             running_loss += train_log['Training Loss']
             all_logs.append(train_log)
             
