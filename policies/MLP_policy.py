@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from torch import distributions
 
-class MLPPolicySL():
+class MLPPolicySL(nn.Module):
     """
     Methods
     -------
@@ -115,3 +115,42 @@ class MLPPolicySL():
             # You can add extra logging information here, but keep this line
             'Training Loss': ptu.to_numpy(loss),
         }
+        
+'''
+Used for IQL 
+'''
+class MLPPolicyAWAC(MLPPolicySL):
+    def __init__(self,
+                 ac_dim,
+                 ob_dim,
+                 n_layers,
+                 size,
+                 learning_rate=1e-4,
+                 training=True,
+                 nn_baseline=False,
+                 lambda_awac=10,
+                 **kwargs,
+                 ):
+        self.lambda_awac = lambda_awac
+        super().__init__(ac_dim, ob_dim, n_layers, size, learning_rate, training, nn_baseline, **kwargs)
+    
+    def update(self, observations, actions, adv_n=None):
+        if adv_n is None:
+            assert False
+        if isinstance(observations, np.ndarray):
+            observations = ptu.from_numpy(observations)
+        if isinstance(actions, np.ndarray):
+            actions = ptu.from_numpy(actions)
+        if isinstance(adv_n, np.ndarray):
+            adv_n = ptu.from_numpy(adv_n)
+
+        dist = self(observations)
+        log_prob_n = dist.log_prob(actions)
+        actor_loss = -log_prob_n * torch.exp(adv_n/self.lambda_awac)
+        actor_loss = actor_loss.mean()
+        
+        self.optimizer.zero_grad()
+        actor_loss.backward()
+        self.optimizer.step()
+        
+        return actor_loss.item()

@@ -1,5 +1,6 @@
 from infrastructure.replay_buffer import ReplayBuffer
 from policies.MLP_policy import MLPPolicySL
+from torch.nn import functional as F
 
 class BCAgent():
     """
@@ -32,7 +33,8 @@ class BCAgent():
         )
 
         # replay buffer
-        self.replay_buffer = ReplayBuffer(max_size=self.agent_params['max_replay_buffer_size'], filepath=self.agent_params['filepath'])
+        print(f"Creating replaying buffer from {self.agent_params['filepath']}")
+        self.replay_buffer = ReplayBuffer(max_size=self.agent_params['max_replay_buffer_size'], filepath=self.agent_params['filepath'], train_percentage=self.agent_params['train_split'])
     
     def train(self, ob_no, ac_na):
         """
@@ -43,6 +45,16 @@ class BCAgent():
         # the given observations and corresponding action labels
         log = self.actor.update(ob_no, ac_na)
         return log
+    
+    def eval(self, mode):
+        if mode == 'val':
+            state = self.replay_buffer.val['state']
+            action = self.replay_buffer.val['action']
+        else:
+            state = self.replay_buffer.test['state']
+            action = self.replay_buffer.test['action']
+            
+        return F.mse_loss(self.actor.get_action(state), action)
 
     def sample(self, batch_size):
         """
