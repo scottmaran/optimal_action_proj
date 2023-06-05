@@ -72,28 +72,22 @@ class IQLTrainer:
         '''
 
         #self.start_time = time.time()
-        #path_to_data = f"datasets/bc_dataset_full"
-
+        train_logs = []
+        avg_logs = []
+        eval_logs = []
         for itr in range(epochs):
             print("\n\n********** Epoch %i ************"%itr)
             
-            # # decide if metrics should be logged
-            # if itr % self.params['scalar_log_freq'] == 0:
-            #     self.log_metrics = True
-            # else:
-            #     self.log_metrics = False
-            
-            # use_batchsize = self.params['batch_size']
-            # paths = self.collect_training_trajectories(path_to_data)
-            # self.agent.add_to_replay_buffer(paths)
-            
-            # eval
             if self.params['train_split'] != 1:
-                train_logs = self.train_agent(mode='train')
-                eval_logs = self.eval_agent(mode='val')
+                all_log, avg_log = self.train_agent(mode='train')
+                train_logs.append(all_log)
+                avg_logs.append(avg_log)
+                
+                eval_log = self.eval_agent(mode='val')
+                eval_logs.append(eval_log)
             else:
-                train_logs = self.train_agent(mode=None)
-                eval_logs = None
+                all_log, avg_log = self.train_agent(mode=None)
+                train_logs.append(all_log)
             
         if self.params['save']:
             model_path = self.params["logdir"] + "/model"
@@ -102,6 +96,8 @@ class IQLTrainer:
             
             with open(self.params["logdir"] + "/train_logs.pkl", "wb") as fp:   #Pickling
                 pickle.dump(train_logs, fp)
+            with open(self.params["logdir"] + "/train_avg_logs.pkl", "wb") as fp:   #Pickling
+                pickle.dump(avg_logs, fp)
             if eval_logs != None:
                 with open(self.params["logdir"] + "/eval_logs.pkl", "wb") as fp:   #Pickling
                     pickle.dump(eval_logs, fp)
@@ -113,6 +109,7 @@ class IQLTrainer:
         """
         print(f'\n Mode={mode} - training agent using sampled data from replay buffer...')
         all_logs = []
+        avg_logs = []
         print_every = 1000
         running_actor_loss = 0
         running_q_loss = 0
@@ -132,10 +129,12 @@ class IQLTrainer:
                 print(f"critic v loss: {running_v_loss/print_every}")
                 print(f"critic q loss: {running_q_loss/print_every}")
                 print(f"actor loss: {running_actor_loss/print_every}")
+                avg_log = {"critic v loss": running_v_loss/print_every, "critic q loss":running_q_loss/print_every , "actor loss":running_actor_loss/print_every }
+                avg_logs.append(avg_log)
                 running_actor_loss = 0
                 running_q_loss = 0
                 running_v_loss = 0
-        return all_logs
+        return all_logs, avg_log
         
     def eval_agent(self, mode='val'):
         """
@@ -145,7 +144,7 @@ class IQLTrainer:
         print(f'\n Mode={mode} - training agent using sampled data from replay buffer...')
         val_loss = self.agent.eval(mode)
         print(f"{mode} loss = {val_loss:.3f}")
-        return val_loss
+        return [{"actor loss": val_loss}]
         
         
     
