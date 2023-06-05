@@ -55,7 +55,7 @@ class MLPPolicySL(nn.Module):
             itertools.chain([self.logstd], self.mean_net.parameters()),
             self.learning_rate
         )
-        self.scheduler = optim.ExponentialLR(self.optimizer, gamma=0.9)
+        self.scheduler = optim.lr_scheduler.ExponentialLR(self.optimizer, gamma=0.9)
         
         ##################################
 
