@@ -59,7 +59,7 @@ def main():
 
     parser.add_argument('--gamma', type=float, default=0.9) # what is usual default
     # depth, of policy to be learned
-    parser.add_argument('--n_layers', type=int, default=2)
+    parser.add_argument('--n_layers', type=int, default=5)
     # width of each layer, of policy to be learned
     parser.add_argument('--size', type=int, default=64)
     # LR for supervised learning
@@ -71,6 +71,8 @@ def main():
     parser.add_argument('--filepath', '-f', type=str, default="./datasets/bc_dataset_full.pkl")
     parser.add_argument('--max_replay_buffer_size', type=int, default=1000000)
     parser.add_argument('--seed', type=int, default=2430)
+    
+    parser.add_argument('--save', type=bool, default=False)
     args = parser.parse_args()
     # convert args to dictionary
     params = vars(args)
