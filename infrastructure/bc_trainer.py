@@ -134,6 +134,7 @@ class BCTrainer:
         """
         print(f'\n Mode={mode} - training agent using sampled data from replay buffer...')
         val_loss = self.agent.eval(mode)
+        print(f"{mode} loss = {val_loss:.3f}")
         return val_loss
         
         
