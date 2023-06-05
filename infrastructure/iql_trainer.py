@@ -80,14 +80,14 @@ class IQLTrainer:
             
             if self.params['train_split'] != 1:
                 all_log, avg_log = self.train_agent(mode='train')
-                train_logs.append(all_log)
-                avg_logs.append(avg_log)
+                train_logs += all_log
+                avg_logs += avg_log
                 
                 eval_log = self.eval_agent(mode='val')
-                eval_logs.append(eval_log)
+                eval_logs += eval_log
             else:
                 all_log, avg_log = self.train_agent(mode=None)
-                train_logs.append(all_log)
+                train_logs += all_log
             
         if self.params['save']:
             model_path = self.params["logdir"] + "/model"
