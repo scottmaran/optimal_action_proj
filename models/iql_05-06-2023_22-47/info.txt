@@ -1,0 +1,2 @@
+- actor is multivariate normal 
+- critics are 5-layer deep NN from ptu

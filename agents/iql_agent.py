@@ -1,5 +1,6 @@
 from infrastructure.replay_buffer import ReplayBuffer
 from policies.MLP_policy import MLPPolicyAWAC
+from policies.MLP_policy import MixturePolicy
 from critics.iql_critic import IQLCritic
 from infrastructure import pytorch_util as ptu
 from torch.nn import functional as F
@@ -34,7 +35,7 @@ class IQLAgent():
     def __init__(self, agent_params):
         self.agent_params = agent_params
         # actor/policy
-        self.awac_actor = MLPPolicyAWAC(
+        self.awac_actor = MixturePolicy(
             self.agent_params['ac_dim'],
             self.agent_params['ob_dim'],
             self.agent_params['n_layers'],

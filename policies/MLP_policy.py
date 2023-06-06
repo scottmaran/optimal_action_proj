@@ -169,3 +169,105 @@ class MLPPolicyAWAC(MLPPolicySL):
         actor_loss = -log_prob_n * torch.exp(adv_n/self.lambda_awac)
         actor_loss = actor_loss.mean()
         return actor_loss.item()
+    
+    
+class MixturePolicy(nn.Module):
+    def __init__(self,
+                 ac_dim,
+                 ob_dim,
+                 n_layers,
+                 size,
+                 learning_rate=1e-4,
+                 training=True,
+                 nn_baseline=False,
+                 num_mixtures=5,
+                 lambda_awac=10,
+                 **kwargs
+                 ):
+        super().__init__(**kwargs)
+        self.ac_dim = ac_dim
+        self.ob_dim = ob_dim
+        self.n_layers = n_layers
+        self.size = size
+        self.learning_rate = learning_rate
+        self.training = training
+        self.nn_baseline = nn_baseline
+        self.num_mixtures = num_mixtures
+        self.lambda_awac = lambda_awac
+    
+        self.mean_net = ptu.build_mlp(
+            input_size=self.ob_dim,
+            output_size=self.ac_dim*num_mixtures,
+            n_layers=self.n_layers, size=self.size,
+        )
+        self.mean_net.to(ptu.device)
+        self.logstd = nn.Parameter(
+            torch.zeros(self.ac_dim*num_mixtures, dtype=torch.float32, device=ptu.device)
+        )
+        self.logstd.to(ptu.device)
+        self.weights = nn.Parameter(torch.ones((self.num_mixtures, ), dtype=torch.float32, device=ptu.device))
+        self.weights.to(ptu.device)
+        
+        self.optimizer = optim.Adam(
+            itertools.chain([self.logstd], self.mean_net.parameters()),
+            self.learning_rate
+        )
+        
+    def save(self, filepath):
+        """
+        :param filepath: path to save MLP
+        """
+        torch.save(self.state_dict(), filepath)
+    
+    ''' 
+    redine forward to represent action distribution as gaussian mixture model
+    '''
+    def forward(self, observation: torch.FloatTensor):
+        batch_mean = self.mean_net(observation)
+        scale_tril = torch.diag(torch.exp(self.logstd))
+        batch_dim = batch_mean.shape[0]
+        batch_scale_tril = scale_tril.repeat(batch_dim, 1, 1)
+        # Construct Gaussian Mixture Modle in ac_dim dimenstions consisting of 5 equally
+        # weighted bivariate normal distributions
+        #mix = distributions.Categorical(self.weights)
+        mix = distributions.Categorical(torch.ones((batch_dim, self.num_mixtures), dtype=torch.float32, device=ptu.device))
+        
+        norm = distributions.Normal(batch_mean.reshape(-1,self.num_mixtures,self.ac_dim), torch.exp(self.logstd).reshape(-1,self.num_mixtures,self.ac_dim))
+        comp = distributions.Independent(norm, 1)
+        gmm_action_dist = distributions.MixtureSameFamily(mix, comp)
+        return gmm_action_dist
+    
+    def update(self, observations, actions, adv_n=None):
+        if adv_n is None:
+            assert False
+        if isinstance(observations, np.ndarray):
+            observations = ptu.from_numpy(observations)
+        if isinstance(actions, np.ndarray):
+            actions = ptu.from_numpy(actions)
+        if isinstance(adv_n, np.ndarray):
+            adv_n = ptu.from_numpy(adv_n)
+
+        dist = self(observations)
+        log_prob_n = dist.log_prob(actions)
+        actor_loss = -log_prob_n * torch.exp(adv_n/self.lambda_awac)
+        actor_loss = actor_loss.mean()
+        
+        self.optimizer.zero_grad()
+        actor_loss.backward()
+        self.optimizer.step()
+        
+        return actor_loss.item()
+    
+    def eval(self, observations, actions, adv_n):
+        if isinstance(observations, np.ndarray):
+            observations = ptu.from_numpy(observations)
+        if isinstance(actions, np.ndarray):
+            actions = ptu.from_numpy(actions)
+        if isinstance(adv_n, np.ndarray):
+            adv_n = ptu.from_numpy(adv_n)
+            
+        dist = self(observations)
+        log_prob_n = dist.log_prob(actions)
+        actor_loss = -log_prob_n * torch.exp(adv_n/self.lambda_awac)
+        actor_loss = actor_loss.mean()
+        return actor_loss.item()
