@@ -74,16 +74,17 @@ def main():
     # convert args to dictionary
     params = vars(args)
     
-    ## directory for logging
-    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-        '../models')
-    if not os.path.exists(data_path):
-        os.makedirs(data_path)
-    logdir = 'bc_' + time.strftime("%d-%m-%Y_%H-%M")
-    logdir = os.path.join(data_path, logdir)
-    params['logdir'] = logdir
-    if not os.path.exists(logdir):
-        os.makedirs(logdir)
+    if params['save'] == True:
+        ## directory for logging
+        data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+            '../models')
+        if not os.path.exists(data_path):
+            os.makedirs(data_path)
+        logdir = 'bc_' + time.strftime("%d-%m-%Y_%H-%M")
+        logdir = os.path.join(data_path, logdir)
+        params['logdir'] = logdir
+        if not os.path.exists(logdir):
+            os.makedirs(logdir)
     
     run_bc(params)
 

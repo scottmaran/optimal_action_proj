@@ -180,7 +180,7 @@ class MixturePolicy(nn.Module):
                  learning_rate=1e-4,
                  training=True,
                  nn_baseline=False,
-                 num_mixtures=5,
+                 num_mixtures=3,
                  lambda_awac=10,
                  **kwargs
                  ):
@@ -238,8 +238,6 @@ class MixturePolicy(nn.Module):
         return gmm_action_dist
     
     def update(self, observations, actions, adv_n=None):
-        if adv_n is None:
-            assert False
         if isinstance(observations, np.ndarray):
             observations = ptu.from_numpy(observations)
         if isinstance(actions, np.ndarray):
@@ -249,7 +247,10 @@ class MixturePolicy(nn.Module):
 
         dist = self(observations)
         log_prob_n = dist.log_prob(actions)
-        actor_loss = -log_prob_n * torch.exp(adv_n/self.lambda_awac)
+        if adv_n is None:
+            actor_loss = -log_prob_n
+        else:
+            actor_loss = -log_prob_n * torch.exp(adv_n/self.lambda_awac)
         actor_loss = actor_loss.mean()
         
         self.optimizer.zero_grad()
@@ -268,6 +269,9 @@ class MixturePolicy(nn.Module):
             
         dist = self(observations)
         log_prob_n = dist.log_prob(actions)
-        actor_loss = -log_prob_n * torch.exp(adv_n/self.lambda_awac)
+        if adv_n is None:
+            actor_loss = -log_prob_n
+        else:
+            actor_loss = -log_prob_n * torch.exp(adv_n/self.lambda_awac)
         actor_loss = actor_loss.mean()
         return actor_loss.item()
