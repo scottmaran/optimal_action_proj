@@ -4,6 +4,7 @@ from torch.nn import functional as F
 from torch import optim
 
 from infrastructure import pytorch_util as ptu
+from policies.models import CNN
 
 import numpy as np
 import torch
@@ -310,11 +311,7 @@ class MLPPolicyCNN(nn.Module):
         self.training = training
         self.nn_baseline = nn_baseline
     
-        self.mean_net = ptu.build_mlp(
-            input_size=self.ob_dim,
-            output_size=self.ac_dim,
-            n_layers=self.n_layers, size=self.size,
-        )
+        self.mean_net = CNN(self.ac_dim)
         self.mean_net.to(ptu.device)
         self.logstd = nn.Parameter(
             torch.zeros(self.ac_dim, dtype=torch.float32, device=ptu.device)

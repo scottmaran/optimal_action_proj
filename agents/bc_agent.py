@@ -1,6 +1,7 @@
 from infrastructure.replay_buffer import ReplayBuffer
 from policies.MLP_policy import MLPPolicySL
 from policies.MLP_policy import MixturePolicy
+from policies.MLP_policy import MLPPolicyCNN
 from torch.nn import functional as F
 from infrastructure import pytorch_util as ptu
 
@@ -26,8 +27,9 @@ class BCAgent():
         self.agent_params = agent_params
 
         # actor/policy
-        self.actor = MLPPolicySL(
+        #self.actor = MLPPolicySL(
         #self.actor = MixturePolicy(
+        self.actor = MLPPolicyCNN(
             self.agent_params['ac_dim'],
             self.agent_params['ob_dim'],
             self.agent_params['n_layers'],
