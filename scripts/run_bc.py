@@ -65,7 +65,7 @@ def main():
     parser.add_argument('--no_gpu', '-ngpu', action='store_true')
     parser.add_argument('--which_gpu', '-gpu_id', default=0)
     
-    parser.add_argument('--filepath', '-f', type=str, default="./datasets/bc_dataset_full.pkl")
+    parser.add_argument('--filepath', '-f', type=str, default="./datasets/bc_dataset_full_5_secs.pkl")
     parser.add_argument('--max_replay_buffer_size', type=int, default=1000000)
     parser.add_argument('--seed', type=int, default=2430)
     

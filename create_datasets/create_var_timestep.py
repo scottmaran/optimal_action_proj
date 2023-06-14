@@ -156,8 +156,8 @@ for index in range(0, num_plays):
 
             
             # store info
-            states = time_play_df.loc[:,['x','y', 'dis', 's', 'a', 'o', 'dir', 'adj_x', 'adj_y', 'adj_o', 'adj_dir', 'sin_adj_o', 'cos_adj_o', 'sin_adj_dir', 'cos_adj_dir', 'team_index', 'dist_from_ball_carrier']].to_numpy()
-            football_pos = time_play_df.loc[time_play_df.team == 'football',['x','y', 'dis', 's', 'a', 'o', 'dir', 'adj_x', 'adj_y', 'adj_o', 'adj_dir', 'sin_adj_o', 'cos_adj_o', 'sin_adj_dir', 'cos_adj_dir', 'team_index', 'dist_from_ball_carrier']].to_numpy()
+            states = time_play_df.loc[:,['s', 'a', 'adj_x', 'adj_y', 'adj_o', 'adj_dir', 'sin_adj_o', 'cos_adj_o', 'sin_adj_dir', 'cos_adj_dir', 'team_index', 'dist_from_ball_carrier']].to_numpy()
+            football_pos = time_play_df.loc[time_play_df.team == 'football',['s', 'a', 'adj_x', 'adj_y', 'adj_o', 'adj_dir', 'sin_adj_o', 'cos_adj_o', 'sin_adj_dir', 'cos_adj_dir', 'team_index', 'dist_from_ball_carrier']].to_numpy()
             
             rowDict['season'] = season
             rowDict['gameId'] = gameId
@@ -170,7 +170,7 @@ for index in range(0, num_plays):
             # add current state
             rowDict['state'] = states.astype(float).round(3)
             # add future states
-            next_state = time_play_df.loc[:,['next_x','next_y', 'next_dis', 'next_s', 'next_a', 'next_o', 'next_dir', 'next_adj_x', 'next_adj_y', 'next_adj_o', 'next_adj_dir', 'next_sin_adj_o', 'next_cos_adj_o', 'next_sin_adj_dir', 'next_cos_adj_dir', 'team_index', 'next_dist_from_ball_carrier']].to_numpy()
+            next_state = time_play_df.loc[:,['next_s', 'next_a', 'next_adj_x', 'next_adj_y', 'next_adj_o', 'next_adj_dir', 'next_sin_adj_o', 'next_cos_adj_o', 'next_sin_adj_dir', 'next_cos_adj_dir', 'team_index', 'next_dist_from_ball_carrier']].to_numpy()
             rowDict['next_state'] = next_state.astype(float).round(3)
             # add reward
             try:
@@ -179,7 +179,7 @@ for index in range(0, num_plays):
                 print("error getting reward")
                 continue
             # action = [x,y,sin_o,cos_o,sin_dir,cos_dir,speed,accel]
-            action = states[0,[7,8,11,12,13,14,3,4]] - next_state[0,[7,8,11,12,13,14,3,4]]    # all states except dist_from_ball and team_index
+            action = states[0,:-2] - next_state[0,:-2]    # all states except dist_from_ball and team_index
 
             rowDict['action'] = action
 

@@ -26,8 +26,8 @@ class BCAgent():
         self.agent_params = agent_params
 
         # actor/policy
-        #self.actor = MLPPolicySL(
-        self.actor = MixturePolicy(
+        self.actor = MLPPolicySL(
+        #self.actor = MixturePolicy(
             self.agent_params['ac_dim'],
             self.agent_params['ob_dim'],
             self.agent_params['n_layers'],
@@ -47,7 +47,7 @@ class BCAgent():
         # training a BC agent refers to updating its actor using
         # the given observations and corresponding action labels
         loss = self.actor.update(ob_no, ac_na)
-        return {"Training Loss": loss}
+        return loss
     
     def eval(self, mode):
         if mode == 'val':
