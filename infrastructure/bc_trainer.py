@@ -53,7 +53,7 @@ class BCTrainer:
         #############
         ## AGENT
         #############
-        ac_dim = 8
+        ac_dim = 10
         ob_dim = 391
         self.params['agent_params']['ac_dim'] = ac_dim
         self.params['agent_params']['ob_dim'] = ob_dim
